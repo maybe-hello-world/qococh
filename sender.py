@@ -6,7 +6,7 @@ def get_data():
     time = '2018-11-19 00:00:00'
     old_r = []
     step = yield
-    while(True):
+    while True:
         if step is not None and step != 0:
             datetime_object = datetime.datetime.strptime(time[:10] + ' ' + time[11:], '%Y-%m-%d %H:%M:%S')
             time = str(datetime.timedelta(seconds=int(step)) + datetime_object)
