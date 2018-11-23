@@ -18,8 +18,8 @@ def get_all_stations():
     return re.get(url,  headers=headers)
 
 if __name__ == "__main__":
-    r = get_all_stations()
+    r = get_transprt_timestmp('2018-12-01T23:59:59')
     print(r)
-    print(r.headers)
+    print(len(json.loads(r.text)))
     print(json.loads(r.text))
 
