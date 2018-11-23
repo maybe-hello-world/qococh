@@ -1,11 +1,13 @@
 import APIrequests
 import datetime
+import json
 
 def get_data():
     time = '2018-11-19T00:00:00'
     old_r = []
     while(True):
         r = APIrequests.get_transprt_timestmp(time)
+        r = json.loads(r.text)
         tosent = []
         for i in r:
             if i not in old_r:
@@ -20,6 +22,7 @@ def get_data():
 
 if __name__ == "__main__":
     g = get_data()
-    print('0: ' + str(g.send(None))[:10])
-    print("1: " + str(g.send(60))[:10])
-    print("2: " + str(g.send(1))[:10])
+    to = 50
+    print('0: ' + str(g.send(None))[:to])
+    print("1: " + str(g.send(1))[:to])
+    print("2: " + str(g.send(1))[:to])
