@@ -8,10 +8,10 @@ def get_data():
     while(True):
         r = APIrequests.get_transprt_timestmp(time)
         r = json.loads(r.text)
-        tosent = []
+        tosent = {}
         for i in r:
             if i not in old_r:
-                tosent.append(i)
+                tosent[i] = r[i]
         old_r = tosent
         step = yield (tosent)
         if step is not None and step != 0:
