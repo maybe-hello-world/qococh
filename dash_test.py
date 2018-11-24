@@ -44,6 +44,7 @@ def init():
     global G, bookings, BOOKINGS_WAYS
     G = booking_processor.addNodes(transports)
     bookings = data_getter.g_bookings
+
     BOOKINGS_WAYS = {i["booking_id"]: {"ways": [], "obj": i} for i in bookings}
 
     i = 0
@@ -55,6 +56,7 @@ def init():
             BOOKINGS_WAYS = pickle.load(f)
         print("G and BOOKINGS_WAYS loaded from disk")
     else:
+        bookings = sorted(bookings, key=lambda x: x["high_priority"], reverse=True)
         for booking in bookings:
             i += 1
             print("Booking #{}".format(i))
