@@ -16,8 +16,9 @@ MAP_HEIGHT = 1000
 TIME = 5
 PAGE_SIZE = 100
 
-g_avg_h=0
-g_avg_i=0
+g_avg_h = 0
+g_avg_i = 0
+
 
 external_stylesheets = ['https://cdnjs.cloudflare.com/ajax/libs/vis/4.20.1/vis.min.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -26,7 +27,7 @@ edges = data_getter.get_initial_state()
 # edges = [{'id': i['transport_number'], 'from': i['dep_station'], 'to': i['actual_arr_station']} for i in edges]
 edges = []
 
-stations = {x: (data_getter.g_stations[x]['name'], data_getter.g_stations[x]['location'])  for x in data_getter.g_stations.keys()}
+stations = {x: (data_getter.g_stations[x]['name'], data_getter.g_stations[x]['location']) for x in data_getter.g_stations.keys()}
 stations = [{
 	'id': k,
 	'label': v[0],
@@ -34,7 +35,7 @@ stations = [{
 	'x': long_to_mercator(v[1]['longitude'], MAP_WIDTH) * 15}
 	for k, v in stations.items()]
 
-bookings = data_getter.g_routes
+bookings = data_getter.g_bookings
 
 undeliverable = {}
 
@@ -42,7 +43,6 @@ app.layout = html.Div([
 	html.Div([
 		html.Div([
 			html.Div([
-			html.H4('hello',id="timesheet", title='test'),
 			dcc.RadioItems(
 				id='radioBtn',
 				options=[
@@ -127,8 +127,9 @@ def update_metrics(n):
 
 	data = {'nodes': stations, 'edges': []}
 
-	n = n if n is not None else 0
+	n = n * 3600 if n is not None else 0
 
+	# TODO
 	# new_data = data_getter.get_next_step(n)
 	new_data = 1
 
@@ -137,7 +138,8 @@ def update_metrics(n):
 		changes = None
 
 		old_edges, new_edges, stats = m_stats.recalculate_stats(changes)
-		g_avg_h,g_avg_i=str(stats["avg_h"],stats["avg_i"])
+		g_avg_h, g_avg_i = str(stats['avg_h']), stats['avg_i']
+
 		old_edges = [{
 			'id': i['id'],
 			'from': i['dep_station'],
@@ -158,10 +160,12 @@ def update_metrics(n):
 
 	return data
 
+
 @app.callback(Output('statisticsDiv', 'children'), [Input('net', 'data')])
 def statistics_return(x):
-	return 'Change delay: ' + g_avg_h +'\\n' \
-		   'Something: '+ g_avg_i;
+	return 'Change delay: ' + str(g_avg_h) +'\\n' \
+		   'Something: '+ str(g_avg_i)
+
 
 if __name__ == '__main__':
 	app.run_server(debug=True, use_reloader=False)
