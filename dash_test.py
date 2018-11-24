@@ -40,6 +40,7 @@ app.layout = html.Div([
 	html.Div([
 		html.Div([
 			html.Div([
+			html.H4('hello',id="timesheet", title='test'),
 			dcc.RadioItems(
 				id='radioBtn',
 				options=[
@@ -51,7 +52,8 @@ app.layout = html.Div([
 				value=1
 			),
 				html.Div([html.Button('Add', id='addBtn')],style={'margin-top': 30})
-			],style={'margin-top': 50, 'margin-bottom': 50}),
+			],style={ 'margin-bottom': 50}),
+			html.Div(id='statisticsDiv'),
 			html.Div(id='nodes'),
 			dte.DataTable(
 				rows=[{'point': '1'}],
@@ -72,7 +74,7 @@ app.layout = html.Div([
 				physics={
 					'enabled': False
 				})
-	)], style={'width': '80%', 'float': 'right', 'border': 'solid', 'border-width': '0.5px'})]),
+	)], style={'width': '80%', 'float': 'right', 'border': 'solid', 'border-width': "0.2px"})]),
 	html.Div([
 	dte.DataTable(
 		rows=bookings,
@@ -109,14 +111,13 @@ def myfun(x):
 	Output('edges-data', 'rows'),
 	[Input('net', 'selection')])
 def myfun(x):
-	s = []
+	s=[]
 	if x is not None and len(x['edges']):
-		tmp = [{'point' :i} for i in x['edges']]
-		s = tmp
+		s = [{'point': i} for i in x['edges']]
 	return s
 
 
-@app.callback(Output('net', 'data'), [],state=[State('radioBtn','value')],events=[Event('addBtn', 'click')])
+@app.callback(Output('net', 'data'), [], state=[State('radioBtn', 'value')], events=[Event('addBtn', 'click')])
 def update_metrics(n):
 	# Get changes
 	print("N is now: {}".format(n))
@@ -153,6 +154,11 @@ def update_metrics(n):
 
 	return data
 
+
+@app.callback(Output('statisticsDiv', 'children'), [Input('net', 'data')])
+def statistics_return(x):
+	print('trigger.')
+	return 'Fired';
 
 if __name__ == '__main__':
 	app.run_server(debug=True, use_reloader=False)
