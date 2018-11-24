@@ -10,6 +10,9 @@ import m_stats
 
 from mercator import lat_to_mercator, long_to_mercator
 
+debug = True
+
+
 MAP_WIDTH = 2048
 MAP_HEIGHT = 1000
 
@@ -131,13 +134,17 @@ def update_metrics(n):
 
 	n = n * 3600 if n is not None else 0
 
-	# TODO
-	# new_data = data_getter.get_next_step(n)
-	new_data = 1
+	if not debug:
+		new_data = data_getter.get_next_step(n)
+	else:
+		new_data = 1
 
 	if new_data is not None and new_data:
-		# changes = booking_processor.process_changes(new_data)
-		changes = None
+		if not debug:
+			changes = None
+			# changes = booking_processor.process_changes(new_data)
+		else:
+			changes = None
 
 		old_edges, new_edges, stats = m_stats.recalculate_stats(changes)
 		g_avg_h, g_avg_i = str(stats['avg_h']), stats['avg_i']

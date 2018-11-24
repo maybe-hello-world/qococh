@@ -8,7 +8,7 @@ g_stations = dict()
 g_routes = list()
 data_gen = None
 
-local = True
+debug = True
 
 
 def get_bookings() -> list:
@@ -26,7 +26,7 @@ def get_stations() -> dict:
 def get_initial_state():
 	global g_bookings, g_stations, g_routes, data_gen
 
-	if local:
+	if debug:
 		with open("bkgs.txt", 'r') as f:
 			g_bookings = json.load(f)
 	else:
@@ -34,7 +34,7 @@ def get_initial_state():
 
 	print("bookings got")
 
-	if local:
+	if debug:
 		with open("sts.txt", 'r') as f:
 			g_stations = json.load(f)
 	else:
@@ -42,7 +42,7 @@ def get_initial_state():
 
 	print("stations got")
 
-	if local:
+	if debug:
 		with open('chages0.txt', 'r') as f:
 			g_routes = json.load(f)
 	else:

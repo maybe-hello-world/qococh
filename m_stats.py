@@ -1,9 +1,10 @@
-import data_getter
 import json
 import itertools
 
 g_ship_hours = []
 g_incr_hours = []
+
+debug = True
 
 
 changed_data2 = """
@@ -51,10 +52,9 @@ def count_avg_time(changes):
 	return sum(g_ship_hours) / len(g_ship_hours), sum(g_incr_hours) / len(g_incr_hours)
 
 
-def recalculate_stats(t):
-	# TODO
-	global changed_data
-	changed_data = json.loads(changed_data2)
+def recalculate_stats(changed_data):
+	if debug:
+		changed_data = json.loads(changed_data2)
 
 	old_e = list(itertools.chain.from_iterable([changed_data[i]['old'] for i in changed_data]))
 	new_e = list(itertools.chain.from_iterable([changed_data[i]['new'] for i in changed_data]))
@@ -67,7 +67,3 @@ def recalculate_stats(t):
 	}
 
 	return old_e, new_e, stats
-
-
-if __name__ == '__main__':
-	print(recalculate_stats(None))
