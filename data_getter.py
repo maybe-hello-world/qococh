@@ -1,11 +1,14 @@
 from sender import get_data
 import requests as re
+import json
 API_KEY = 'cdQh8jFpdGn8dzsgZ8kS3H7bpeJxCnfFn77VQM79EubXtsBY9cuxtvztJUyP4377'
 
 g_bookings: list
 g_stations: dict
 g_routes: list
 data_gen = None
+
+local = True
 
 
 def get_bookings() -> list:
@@ -20,18 +23,32 @@ def get_stations() -> dict:
 	return re.get(url, headers=headers).json()
 
 
-def get_initial_state() -> None:
+def get_initial_state():
 	global g_bookings, g_stations, g_routes, data_gen
 
-	g_bookings = get_bookings()
+	if local:
+		with open("bkgs.txt", 'r') as f:
+			g_bookings = json.load(f)
+	else:
+		g_bookings = get_bookings()
+
 	print("bookings got")
 
-	g_stations = get_stations()
+	if local:
+		with open("sts.txt", 'r') as f:
+			g_stations = json.load(f)
+	else:
+		g_stations = get_stations()
+
 	print("stations got")
 
-	data_gen = get_data()
-	data_gen.send(None)
-	g_routes = data_gen.send(0)
+	if local:
+		with open('chages0.txt', 'r') as f:
+			g_routes = json.load(f)
+	else:
+		data_gen = get_data()
+		g_routes = data_gen.send(None)
+	return g_routes
 
 
 def get_next_step(timer):
