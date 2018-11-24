@@ -16,6 +16,8 @@ MAP_HEIGHT = 1000
 TIME = 5
 PAGE_SIZE = 100
 
+g_avg_h=0
+g_avg_i=0
 
 external_stylesheets = ['https://cdnjs.cloudflare.com/ajax/libs/vis/4.20.1/vis.min.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -119,6 +121,7 @@ def myfun(x):
 
 @app.callback(Output('net', 'data'), [], state=[State('radioBtn', 'value')], events=[Event('addBtn', 'click')])
 def update_metrics(n):
+	global g_avg_h, g_avg_i
 	# Get changes
 	print("N is now: {}".format(n))
 
@@ -133,7 +136,8 @@ def update_metrics(n):
 		# changes = booking_processor.process_changes(new_data)
 		changes = None
 
-		old_edges, new_edges = m_stats.recalculate_stats(changes)
+		old_edges, new_edges, stats = m_stats.recalculate_stats(changes)
+		g_avg_h,g_avg_i=str(stats["avg_h"],stats["avg_i"])
 		old_edges = [{
 			'id': i['id'],
 			'from': i['dep_station'],
