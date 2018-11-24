@@ -56,10 +56,14 @@ def deikstra (G, start_node, stop_node, dep_time):
                     dist[adj_edge[1]] = dist_delta
                     if min_ind in min_paths:
                         min_paths[adj_edge[1]] = min_paths[min_ind] + [(G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["transport_number"],
-                                                                        G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["estimated_arr_datetime"]
-                                                                        )]
+                                                                        G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["estimated_arr_datetime"],
+                                                                        adj_edge[0],
+                                                                        adj_edge[1])]
                     else:
-                        min_paths[adj_edge[1]] = [(G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["transport_number"], G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["estimated_arr_datetime"])]
+                        min_paths[adj_edge[1]] = [(G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["transport_number"],
+                                                   G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["estimated_arr_datetime"],
+                                                   adj_edge[0],
+                                                   adj_edge[1])]
     if stop_node in min_paths:
         return min_paths[stop_node]
     else:
@@ -69,6 +73,7 @@ def deikstra (G, start_node, stop_node, dep_time):
 def update_tranp_graph(G, list_of_changes):
     bad_transports = []
     for item in list_of_changes:
+        #if item["actual_arr_datetime"] is not None or item["actual_dep_datetime"] is not None:
         transp_key = item["transport_number"]
         bad_transports.append(transp_key)
         act_arr = item["actual_arr_station"]
@@ -104,9 +109,9 @@ def update_bookings (booking_ways, G, bad_transports, cur_date, bookings):
             else:
                 last_transport = {}
                 last_transport["actual_arr_station"] = booking_to_change["origin_station"]
-                last_transport["scheduled_arr_datetime"] = datetime.datetime.strptime(booking_to_change["booking_date"], '%Y%m%d')
+                last_transport["estimated_arr_datetime"] = datetime.datetime.strptime(booking_to_change["booking_date"], '%Y%m%d')
             adopt_G = get_package_graph(booking = booking_to_change, G = G)
-            ends_with = deikstra(adopt_G, last_transport["actual_arr_station"],booking_to_change["destination_station"], last_transport["scheduled_arr_datetime"])
+            ends_with = deikstra(adopt_G, last_transport["actual_arr_station"],booking_to_change["destination_station"], last_transport["estimated_arr_datetime"])
             new_path = begin_with + ends_with
             dict_changes[ke] ={ "old": booking_ways[ke]["ways"], "new" : new_path, "booking" : booking_to_change}
     return dict_changes
