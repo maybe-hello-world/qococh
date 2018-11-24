@@ -7,6 +7,7 @@ def get_data():
     old_r = []
     changes_to_show = {}
     step = yield
+    itera = 0
     while True:
         if step is not None and step != 0:
             datetime_object = datetime.datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
@@ -21,9 +22,9 @@ def get_data():
                 tosent.append(i)
         old_r += tosent
         # if tosent:
-        #     with open(r"staff/chages" + str(it) + ".txt", 'w') as f:
+        #     with open(r"staff/chages" + str(itera) + ".txt", 'w') as f:
         #         json.dump(tosent, f)
-        it += 1
+        itera += 1
         for i1 in range(len(old_r)-1):
             i = old_r[i1]
             for j1 in range(i1+1,len(old_r)):
