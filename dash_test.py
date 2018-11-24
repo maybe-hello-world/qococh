@@ -58,8 +58,8 @@ app.layout = html.Div([
 			),
 				html.Div([html.Button('Add', id='addBtn')], style={'margin-top': 30})
 			], style={ 'margin-bottom': 50}),
-			html.Div(id='avgDelivery', style={ 'white-space': 'pre-wrap'}),
-			html.Div(id='changeDelta', style={ 'white-space': 'pre-wrap'}),
+			html.Div(id='avgDelivery', style={'white-space': 'pre-wrap', 'text-align':'center', 'font-size': '26pt', 'margin-bottom': 40}),
+			html.Div(id='changeDelta', style={'white-space': 'pre-wrap', 'text-align':'center', 'font-size': '26pt'}),
 			html.Div(id='nodes', style={'float': 'left','margin-top': '50'}),
 			dte.DataTable(
 				rows=[{'point': '1'}],
@@ -80,9 +80,7 @@ app.layout = html.Div([
 				physics={
 					'enabled': False
 				})
-	)], style={'background-image': 'url(https://upload.wikimedia.org/wikipedia/commons/c/c8/Mercator_Blank_Map_World.png)',
-			   'background-repeat': 'no-repeat', 'background-size':'auto',
-			   'width': MAP_WIDTH, 'height' :MAP_HEIGHT ,  'float': 'right', 'border': 'solid', 'border-width': "0.1px"})]),
+	)], style={'width': MAP_WIDTH, 'height' : MAP_HEIGHT,  'float': 'right', 'border-style':'solid' ,'border-width': "0.2px"})]),
 	html.Div([
 	dte.DataTable(
 		rows=[{'undevirable' : 'shipment 1'}, {'undevirable' : 'shipment 2'} ],
@@ -151,7 +149,7 @@ def update_metrics(n):
 			changes = None
 
 		old_edges, new_edges, stats = m_stats.recalculate_stats(changes)
-		g_avg_h, g_avg_i = str(stats['avg_h']), stats['avg_i']
+		g_avg_h, g_avg_i = stats['avg_h'], stats['avg_i']
 
 		old_edges = [{
 			'id': i['id'],
@@ -176,11 +174,11 @@ def update_metrics(n):
 
 @app.callback(Output('avgDelivery', 'children'), [Input('net', 'data')])
 def statistics_return(x):
-	return 'AVG delivery: ' + str(g_avg_h)
+	return 'Avg delivery time (hours)'+'\n' + "{0:.1f}".format(g_avg_h)
 
 @app.callback(Output('changeDelta', 'children'), [Input('net', 'data')])
 def statistics_return(x):
-	return 'Something: '+ str(g_avg_i)
+	return 'Avg delay (hours)'+'\n' + "{0:.1f}".format(g_avg_i)
 
 if __name__ == '__main__':
 	app.run_server(debug=True, use_reloader=False)

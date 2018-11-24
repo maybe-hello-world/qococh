@@ -1,104 +1,9 @@
 import networkx as nx
-from booking_processor_2 import *
 import datetime
+import APIrequests
+import json
+
 INF_TIME = datetime.datetime.strptime('3018-01-01T00:00:00', '%Y-%m-%dT%H:%M:%S')
-bookings = [{
-     "booking_id": "empty-crab-97",
-     "origin_station": "PEK",
-     "destination_station": "GOT",
-     "booking_date": "20181116",
-     "total_weight": 795,
-     "total_volume": 1.25,
-     "high_priority": False
- }]
-transports =[
-    {
-        "mode": "T",
-        "transport_number": "20181112_lucky-moth-42",
-        "dep_station": "ORD",
-        "scheduled_arr_station": "JFK",
-        "actual_arr_station": "JFK",
-        "scheduled_dep_datetime": "2018-01-01T14:00:00",
-        "scheduled_arr_datetime": "2018-01-02T13:00:00",
-        "estimated_dep_datetime": "2018-01-01T14:00:00",
-        "estimated_arr_datetime": "2018-01-02T13:00:00",
-        "actual_dep_datetime": "2018-01-01T14:00:00",
-        "actual_arr_datetime": None,
-        "capacity_volume": 111.81,
-        "capacity_weight": 50823.89,
-        "cancelled": False
-    },
-    {
-        "mode": "T",
-        "transport_number": "20181112_lucky-moth-43",
-        "dep_station": "ORD",
-        "scheduled_arr_station": "MSK",
-        "actual_arr_station": "MSK",
-        "scheduled_dep_datetime": "2018-01-01T14:00:00",
-        "scheduled_arr_datetime": "2018-01-06T14:00:00",
-        "estimated_dep_datetime": "2018-01-01T14:00:00",
-        "estimated_arr_datetime": "2018-01-06T14:00:00",
-        "actual_dep_datetime": "2018-01-06T14:00:00",
-        "actual_arr_datetime": None,
-        "capacity_volume": 111.81,
-        "capacity_weight": 50823.89,
-        "cancelled": False
-    },
-    {
-        "mode": "T",
-        "transport_number": "20181112_lucky-moth-46",
-        "dep_station": "JFK",
-        "scheduled_arr_station": "MSK",
-        "actual_arr_station": "MSK",
-        "scheduled_dep_datetime": "2018-01-02T16:00:00",
-        "scheduled_arr_datetime": "2018-01-03T18:00:00",
-        "estimated_dep_datetime": "2018-01-02T16:00:00",
-        "estimated_arr_datetime": "2018-01-03T18:00:00",
-        "actual_dep_datetime": "2018-01-02T16:00:00",
-        "actual_arr_datetime": None,
-        "capacity_volume": 111.81,
-        "capacity_weight": 50823.89,
-        "cancelled": False
-    },
-
-    {
-        "mode": "T",
-        "transport_number": "20181112_lucky-moth-50",
-        "dep_station": "JFK",
-        "scheduled_arr_station": "MSK",
-        "actual_arr_station": "MSK",
-        "scheduled_dep_datetime": "2018-01-03T14:00:00",
-        "scheduled_arr_datetime": "2018-01-06T14:00:00",
-        "estimated_dep_datetime": "2018-01-03T14:00:00",
-        "estimated_arr_datetime": "2018-01-06T14:00:00",
-        "actual_dep_datetime": "2018-01-03T14:00:00",
-        "actual_arr_datetime": None,
-        "capacity_volume": 111.81,
-        "capacity_weight": 50823.89,
-        "cancelled": False
-    },
-{
-        "mode": "T",
-        "transport_number": "20181112_lucky-moth-45",
-        "dep_station": "ORD",
-        "scheduled_arr_station": "MSK",
-        "actual_arr_station": "MSK",
-        "scheduled_dep_datetime": "2018-01-02T14:00:00",
-        "scheduled_arr_datetime": "2018-01-04T14:00:00",
-        "estimated_dep_datetime": "2018-01-02T14:00:00",
-        "estimated_arr_datetime": "2018-01-04T14:00:00",
-        "actual_dep_datetime": "2018-01-02T14:00:00",
-        "actual_arr_datetime": None,
-        "capacity_volume": 111.81,
-        "capacity_weight": 50823.89,
-        "cancelled": False
-    }
-
-]
-
-BOOKINGS_WAYS = {i["booking_id"]: [] for i in bookings}
-
-
 
 def addNodes(transports):
     G = nx.MultiDiGraph()
@@ -116,7 +21,7 @@ def find_unvisited_min (dist, visited):
                 min_ind = i
     return min_ind
 
-def deikstra (G, start_node ,stop_node, dep_time):
+def deikstra (G, start_node, stop_node, dep_time):
     dist = dict()
     min_paths ={}
     dist[start_node] = dep_time
@@ -125,12 +30,11 @@ def deikstra (G, start_node ,stop_node, dep_time):
             dist[item] = INF_TIME
     visited = set()
     while len(visited) < len(G.nodes) -1:
-        min_ind = find_unvisited_min(dist,visited)
+        min_ind = find_unvisited_min(dist, visited)
         if min_ind==0: break
         visited.add(min_ind)
-
         neighbours = G.adj[min_ind].keys()
-        print('n_list {}: {}'.format(min_ind, list(neighbours)))
+
         for adj_node in neighbours:
             min_e = 0
             min_time = INF_TIME
@@ -172,56 +76,105 @@ def update_tranp_graph(G, list_of_changes):
             G.remove_edge(act_dep,sch_arr,transp_key)
         G.add_edge(act_dep, act_arr, data=item, key=transp_key)
     return (G,bad_transports)
-    BOOKINGS_WAYS = {i["booking_id"]:[] for i in bookings}
 
-def update_bookings (booking_ways, G, bad_transports, cur_date):
-    #get actual ways, new graph, bad_transports, and curruent date and
-    dict_changes ={}
+
+
+def update_bookings (booking_ways, G, bad_transports, cur_date, bookings):
+    # get actual ways, new graph, bad_transports, and curruent date and
+    dict_changes = {}
     for ke in booking_ways:
         # ke - name of booking
         # booking_ways[ke] - list of ()
-        #for i in booking_ways[ke]:
-        if any(l[0] in bad_transports for l in booking_ways[ke]):
-            path_to_replace = [i[0] for i in (filter(lambda x: (datetime.datetime.strptime(x[1], '%Y-%m-%dT%H:%M:%S') >=  cur_date), booking_ways[ke]))]
+        # for i in booking_ways[ke]:
+        if any(l[0] in bad_transports for l in booking_ways[ke]["ways"]):
+            path_to_replace = [i[0] for i in (filter(lambda x: (datetime.datetime.strptime(x[1], '%Y-%m-%dT%H:%M:%S') >=  cur_date), booking_ways[ke]["ways"]))]
         else:
             path_to_replace= []
         if path_to_replace:
-            booking_to_change= list(filter(lambda x: x["booking_id"] == ke, bookings))[0]
-            begin_with = filter(lambda x: (datetime.datetime.strptime(x[1], '%Y-%m-%dT%H:%M:%S') <  cur_date))
-            last_tr_id = begin_with[-1][0]
-            last_transport=0
-            for d in G.edges.data():
-                if d[2]["data"]["transport_number"]==last_tr_id:
-                    last_transport = d
-                    break
-            adopt_G =get_package_graph(booking_to_change, G)
-            ends_with = deikstra(adopt_G, last_transport["actual_arr_station"],booking_to_change["destination_station"] )
+            booking_to_change = booking_ways[ke]["obj"]
+            begin_with = list(filter(lambda x: (datetime.datetime.strptime(x[1], '%Y-%m-%dT%H:%M:%S') <  cur_date),booking_ways[ke]["ways"]))
+            if begin_with:
+                last_tr_id = begin_with[-1][0]
+                last_transport=0
+                for d in G.edges.data():
+                    if d[2]["data"]["transport_number"]==last_tr_id:
+                        last_transport = d
+                        break
+            else:
+                last_transport = {}
+                last_transport["actual_arr_station"] = booking_to_change["origin_station"]
+                last_transport["scheduled_arr_datetime"] = datetime.datetime.strptime(booking_to_change["booking_date"], '%Y%m%d')
+            adopt_G = get_package_graph(booking = booking_to_change, G = G)
+            ends_with = deikstra(adopt_G, last_transport["actual_arr_station"],booking_to_change["destination_station"], last_transport["scheduled_arr_datetime"])
             new_path = begin_with + ends_with
-            dict_changes[ke] ={ "old": booking_ways[ke], "new" : new_path, "booking" : booking_to_change}
+            dict_changes[ke] ={ "old": booking_ways[ke]["ways"], "new" : new_path, "booking" : booking_to_change}
     return dict_changes
 
 
+##############################################liubias
+def get_package_graph(booking, G):
+    new_G = G.copy()
+    for i in G.edges.data():
+        if (i[2]["data"]["capacity_volume"] < booking["total_volume"])\
+            or (i[2]["data"]["capacity_weight"] < booking["total_weight"])\
+            or (i[2]["data"]["cancelled"] == True):
+                new_G.remove_edge(i[2]["data"]["dep_station"], i[2]["data"]["scheduled_arr_station"], key=i[2]["data"]["transport_number"])
+    return new_G
 
 
-if __name__=="__main__":
-    G = addNodes(transports)
-    print ("============================")
-    # G=update_tranp_graph(G, [{"transport_number": "20181112_lucky-moth-42",
-    #                               "dep_station": "ORD",
-    #                               "scheduled_arr_station": "JFK",
-    #                               "actual_arr_station": "QWE"}])
-    # print(G.edges(keys=True))
-    # print("-0000000000000000")
-    # print(G.edges(data=True))
 
-    for d in G.edges.data():
-        print("11111111111111111111111111111111")
-        if d[2]["data"]["transport_number"] == "20181112_lucky-moth-42":
-            print("printing d "+str(d))
-   # print(G.edges('ORD', 'JFK', '20181112_lucky-moth-42',data=True))
-   #  d=deikstra(G,'ORD','MSK', datetime.datetime.strptime( '2018-01-01T14:00:00', '%Y-%m-%dT%H:%M:%S'))
-   #  print(d)
+def update_graph(way, G, booking):
+    #print(G.edges())
+    new_G = G.copy()
+    dic = {}
+    for i in new_G.edges.data():
+        dic[i[2]["data"]["transport_number"]] = (i[0], i[1])
+    for w in way:
+        new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_volume"] -= booking["total_volume"]
+        new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_weight"] -= booking["total_weight"]
+    return new_G
 
+def update_graph_plus(way, G, booking):
+    #print(G.edges())
+    new_G = G.copy()
+    dic = {}
+    for i in new_G.edges.data():
+        dic[i[2]["data"]["transport_number"]] = (i[0], i[1])
+    for w in way:
+        # print("vol of way {}".format(new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_volume"]))
+        # print("wei of way {}".format(new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_weight"]))
+        # print("book vol {}".format(booking["total_volume"]))
+        # print("book wei {}".format(booking["total_weight"]))
+        new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_volume"] += booking["total_volume"]
+        new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_weight"] += booking["total_weight"]
+        # print("vol of way {}".format(new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_volume"]))
+        # print("wei of way {}".format(new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_weight"]))
+    return new_G
+
+def canceled_bookings(bookings_list, G):
+    for i in bookings_list:
+        # i - booking id
+        # bookings_list[i][old] - old ways way[0] - name way w[1] - time way
+        # bookings_list[i][new] - new ways
+        # boking_item bookings_list[i][booking]
+        #booking_v = list(filter(lambda x: x["booking_id"] == i,bookings))
+        if bookings_list[i]["old"]:
+            G = update_graph_plus(bookings_list[i]["old"], G, bookings_list[i]["booking"])
+        if bookings_list[i]["new"]:
+            G = update_graph_minus(bookings_list[i]["new"], G, bookings_list[i]["booking"])
+    return G
+
+def update_graph_minus(way, G, booking):
+    #print(G.edges())
+    new_G = G.copy()
+    dic = {}
+    for i in new_G.edges.data():
+        dic[i[2]["data"]["transport_number"]] = (i[0], i[1])
+    for w in way:
+        # print(new_G[dic[w[0]][0]][dic[w[0]][1]])
+        new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_volume"] -= booking["total_volume"]
+        new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_weight"] -= booking["total_weight"]
+    return new_G
 
 
 
