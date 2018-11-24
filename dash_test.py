@@ -68,7 +68,8 @@ app.layout = html.Div([
 	[Input('net', 'selection')])
 def myfun(x):
 	s = 'Selected node: '
-	if len(x['nodes']) > 0: s += str(x['nodes'])
+	if x is not None and len(x['nodes']):
+		s += str(x['nodes'])
 	return s
 
 
@@ -78,7 +79,8 @@ def myfun(x):
 	[Input('net', 'selection')])
 def myfun(x):
 	s = 'It\'s edges: '
-	if len(x['edges']) > 0: s = [s] + [html.Div(i) for i in x['edges']]
+	if x is not None and len(x['edges']):
+		s = [s] + [html.Div(i) for i in x['edges']]
 	return s
 
 
