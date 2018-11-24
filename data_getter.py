@@ -3,9 +3,9 @@ import requests as re
 import json
 API_KEY = 'cdQh8jFpdGn8dzsgZ8kS3H7bpeJxCnfFn77VQM79EubXtsBY9cuxtvztJUyP4377'
 
-g_bookings: list
-g_stations: dict
-g_routes: list
+g_bookings = list()
+g_stations = dict()
+g_routes = list()
 data_gen = None
 
 local = True
