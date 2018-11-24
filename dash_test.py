@@ -16,6 +16,8 @@ MAP_HEIGHT = 1000
 TIME = 5
 PAGE_SIZE = 100
 
+g_avg_h=0
+g_avg_i=0
 
 external_stylesheets = ['https://cdnjs.cloudflare.com/ajax/libs/vis/4.20.1/vis.min.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -40,6 +42,7 @@ app.layout = html.Div([
 	html.Div([
 		html.Div([
 			html.Div([
+			html.H4('hello',id="timesheet", title='test'),
 			dcc.RadioItems(
 				id='radioBtn',
 				options=[
@@ -51,7 +54,8 @@ app.layout = html.Div([
 				value=1
 			),
 				html.Div([html.Button('Add', id='addBtn')],style={'margin-top': 30})
-			],style={'margin-top': 50, 'margin-bottom': 50}),
+			],style={ 'margin-bottom': 50}),
+			html.Div(id='statisticsDiv'),
 			html.Div(id='nodes'),
 			dte.DataTable(
 				rows=[{'point': '1'}],
@@ -72,7 +76,7 @@ app.layout = html.Div([
 				physics={
 					'enabled': False
 				})
-	)], style={'width': '80%', 'float': 'right', 'border': 'solid', 'border-width': '0.5px'})]),
+	)], style={'width': '80%', 'float': 'right', 'border': 'solid', 'border-width': "0.2px"})]),
 	html.Div([
 	dte.DataTable(
 		rows=bookings,
@@ -109,15 +113,15 @@ def myfun(x):
 	Output('edges-data', 'rows'),
 	[Input('net', 'selection')])
 def myfun(x):
-	s = []
+	s=[]
 	if x is not None and len(x['edges']):
-		tmp = [{'point' :i} for i in x['edges']]
-		s = tmp
+		s = [{'point': i} for i in x['edges']]
 	return s
 
 
-@app.callback(Output('net', 'data'), [],state=[State('radioBtn','value')],events=[Event('addBtn', 'click')])
+@app.callback(Output('net', 'data'), [], state=[State('radioBtn', 'value')], events=[Event('addBtn', 'click')])
 def update_metrics(n):
+	global g_avg_h, g_avg_i
 	# Get changes
 	print("N is now: {}".format(n))
 
@@ -132,7 +136,8 @@ def update_metrics(n):
 		# changes = booking_processor.process_changes(new_data)
 		changes = None
 
-		old_edges, new_edges = m_stats.recalculate_stats(changes)
+		old_edges, new_edges, stats = m_stats.recalculate_stats(changes)
+		g_avg_h,g_avg_i=str(stats["avg_h"],stats["avg_i"])
 		old_edges = [{
 			'id': i['id'],
 			'from': i['dep_station'],
@@ -153,6 +158,10 @@ def update_metrics(n):
 
 	return data
 
+@app.callback(Output('statisticsDiv', 'children'), [Input('net', 'data')])
+def statistics_return(x):
+	return 'Change delay: ' + g_avg_h +'\\n' \
+		   'Something: '+ g_avg_i;
 
 if __name__ == '__main__':
 	app.run_server(debug=True, use_reloader=False)

@@ -143,16 +143,17 @@ def update_graph_plus(way, G, booking):
         print("wei of way {}".format(new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_weight"]))
     return new_G
 
-def canceled_bookings(bookings_list, G, bookings):
+def canceled_bookings(bookings_list, G):
     for i in bookings_list:
         # i - booking id
-        # bookings_list[i][0] - old ways way[0] - name way w[1] - time way
-        # bookings_list[i][1] - new ways
-        booking_v = list(filter(lambda x: x["booking_id"] == i,bookings))
-        if booking_v:
-            booking_v = booking_v[0]
-        G = update_graph_plus(bookings_list[i][0], G, booking_v)
-        G = update_graph_minus(bookings_list[i][1], G, booking_v)
+        # bookings_list[i][old] - old ways way[0] - name way w[1] - time way
+        # bookings_list[i][new] - new ways
+        # boking_item bookings_list[i][booking]
+        #booking_v = list(filter(lambda x: x["booking_id"] == i,bookings))
+        if bookings_list[i]["old"]:
+            G = update_graph_plus(bookings_list[i]["old"], G, bookings_list[i]["booking"])
+        if bookings_list[i]["new"]:
+            G = update_graph_minus(bookings_list[i]["new"], G, bookings_list[i]["booking"])
     return G
 
 def update_graph_minus(way, G, booking):
