@@ -154,11 +154,10 @@ def update_metrics(n):
 
 	return data
 
-
 @app.callback(Output('statisticsDiv', 'children'), [Input('net', 'data')])
 def statistics_return(x):
-	print('trigger.')
-	return 'Fired';
+	return 'Change delay: ' + g_avg_h +'\\n' \
+		   'Something: '+ g_avg_i;
 
 if __name__ == '__main__':
 	app.run_server(debug=True, use_reloader=False)
