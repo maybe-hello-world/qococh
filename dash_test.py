@@ -31,12 +31,21 @@ stations = [{
 
 bookings = data_getter.g_bookings
 
+undeliverable = {}
+#print(bookings)
 
 app.layout = html.Div([
 	html.Div([
 		html.Div([
 			html.Div(id='nodes'),
-			html.Div(id='edges')
+			dte.DataTable(
+				rows=[{'pont':'1'}],
+				row_selectable=False,
+				editable=False,
+				filterable=True,
+				sortable=True,
+				id='edges-data'
+			)
 		], style={'width': '19%', 'display': 'inline-block'}),
 		html.Div([
 		visdcc.Network(
@@ -48,14 +57,21 @@ app.layout = html.Div([
 				physics={
 					'enabled': False
 				})
-	)], style={'width': '80%', 'float': 'right', 'display': 'inline-block'})]),
+	)], style={'width': '80%', 'float': 'right', 'display': 'inline-block'})], style={'border': '4px black'}),
 	dte.DataTable(
-		rows=bookings,  # initialise the rows
+		rows=bookings,
 		row_selectable=True,
 		filterable=True,
 		sortable=True,
-		selected_row_indices=[],
-		id='datatable'
+		id='undelirevable-data'
+	),
+	dte.DataTable(
+		rows=bookings,
+		row_selectable=False,
+		editable=False,
+		filterable=True,
+		sortable=True,
+		id='stations'
 	)
 	,
 	dcc.Interval(id='my-interval', interval=1000*1000)
@@ -73,14 +89,15 @@ def myfun(x):
 	return s
 
 
-# selections for edges
+#selections for edges
 @app.callback(
-	Output('edges', 'children'),
+	Output('edges-data', 'rows'),
 	[Input('net', 'selection')])
 def myfun(x):
-	s = 'It\'s edges: '
+	s=[]
 	if x is not None and len(x['edges']):
-		s = [s] + [html.Div(i) for i in x['edges']]
+		tmp = [{'point' :i} for i in x['edges']]
+		s = tmp
 	return s
 
 
