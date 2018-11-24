@@ -18,10 +18,10 @@ transports =[
         "scheduled_arr_station": "JFK",
         "actual_arr_station": "JFK",
         "scheduled_dep_datetime": "2018-01-01T14:00:00",
-        "scheduled_arr_datetime": "2018-01-02T14:00:00",
+        "scheduled_arr_datetime": "2018-01-02T13:00:00",
         "estimated_dep_datetime": "2018-01-01T14:00:00",
-        "estimated_arr_datetime": "2018-01-02T14:00:00",
-        "actual_dep_datetime": "2018-01-02T14:00:00",
+        "estimated_arr_datetime": "2018-01-02T13:00:00",
+        "actual_dep_datetime": "2018-01-01T14:00:00",
         "actual_arr_datetime": None,
         "capacity_volume": 111.81,
         "capacity_weight": 50823.89,
@@ -49,11 +49,11 @@ transports =[
         "dep_station": "JFK",
         "scheduled_arr_station": "MSK",
         "actual_arr_station": "MSK",
-        "scheduled_dep_datetime": "2018-01-02T14:00:00",
-        "scheduled_arr_datetime": "2018-01-03T14:00:00",
-        "estimated_dep_datetime": "2018-01-02T14:00:00",
-        "estimated_arr_datetime": "2018-01-03T14:00:00",
-        "actual_dep_datetime": "2018-01-03T14:00:00",
+        "scheduled_dep_datetime": "2018-01-02T16:00:00",
+        "scheduled_arr_datetime": "2018-01-03T18:00:00",
+        "estimated_dep_datetime": "2018-01-02T16:00:00",
+        "estimated_arr_datetime": "2018-01-03T18:00:00",
+        "actual_dep_datetime": "2018-01-02T16:00:00",
         "actual_arr_datetime": None,
         "capacity_volume": 111.81,
         "capacity_weight": 50823.89,
@@ -135,14 +135,17 @@ def deikstra (G, start_node ,stop_node, dep_time):
                     min_time = datetime.datetime.strptime(all_edges[i]['data']["estimated_arr_datetime"],'%Y-%m-%dT%H:%M:%S')
                     min_e = i
             adj_edge = (min_ind, adj_node)
-            dist_delta = datetime.datetime.strptime(G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["estimated_arr_datetime"], '%Y-%m-%dT%H:%M:%S')
-            if dist[adj_edge[1]] > dist_delta:
+            edj_data = G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']
+            dist_delta = datetime.datetime.strptime(edj_data["estimated_arr_datetime"], '%Y-%m-%dT%H:%M:%S')
+            if (dist[adj_edge[1]] > dist_delta) and (datetime.datetime.strptime(edj_data["estimated_dep_datetime"], '%Y-%m-%dT%H:%M:%S') >= dist[min_ind]):
                 dist[adj_edge[1]] = dist_delta
                 if min_ind in min_paths:
                     min_paths[adj_edge[1]] = min_paths[min_ind] + [(G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["transport_number"], G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["estimated_arr_datetime"])]
                 else:
-                    min_paths[adj_edge[1]] =  [(G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["transport_number"], G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["estimated_arr_datetime"])]
+                    min_paths[adj_edge[1]] = [(G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["transport_number"], G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["estimated_arr_datetime"])]
     return min_paths[stop_node]
+
+# def transportation_canceled():
 
 G = addNodes(transports)
 #print(G.edges())
