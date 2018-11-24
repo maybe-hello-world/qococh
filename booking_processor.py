@@ -1,4 +1,5 @@
 import networkx as nx
+from booking_processor_2 import *
 import datetime
 INF_TIME = datetime.datetime.strptime('3018-01-01T00:00:00', '%Y-%m-%dT%H:%M:%S')
 bookings = [{
@@ -95,6 +96,8 @@ transports =[
 
 ]
 
+BOOKINGS_WAYS = {i["booking_id"]: [] for i in bookings}
+
 
 
 def addNodes(transports):
@@ -156,21 +159,63 @@ def deikstra (G, start_node ,stop_node, dep_time):
 
 
 def update_tranp_graph(G, list_of_changes):
-    cur_edges = {}
+    bad_transports = []
     for item in list_of_changes:
         transp_key = item["transport_number"]
-        G.edges[transp_key]
+        bad_transports.append(transp_key)
+        act_arr = item["actual_arr_station"]
+        sch_arr = item["scheduled_arr_station"]
+        act_dep = item["dep_station"]
+        if (act_arr!=sch_arr) and (G.has_edge(act_dep,sch_arr,transp_key)) :
+            G.remove_edge(act_dep,sch_arr,transp_key)
+        G.add_edge(act_dep, act_arr, data=item, key=transp_key)
+    return (G,bad_transports)
+    BOOKINGS_WAYS = {i["booking_id"]:[] for i in bookings}
+
+def update_bookings (booking_ways, G, bad_transports, cur_date):
+    dict_changes =[]
+    for ke in booking_ways:
+        # ke - name of booking
+        # booking_ways[ke] - list of ()
+        #for i in booking_ways[ke]:
+        if any(l[0] in bad_transports for l in booking_ways[ke]):
+            path_to_replace = [i[0] for i in (filter(lambda x: (datetime.datetime.strptime(x[1], '%Y-%m-%dT%H:%M:%S') >=  cur_date), booking_ways[ke]))]
+        else:
+            path_to_replace= []
+        if path_to_replace:
+            booking= list(filter(lambda x: x["booking_id"] == ke, bookings))[0]
+            last_transport =
+            adopt_G =get_package_graph(booking, G,  ,booking["destination_station"])
 
 
 
-        G.remove_edge( )
-    transp_elem = G.get_edge_data()
+
+
+            new_end = deikstra(adopt_G, )
+            new_path =  filter(lambda x: (datetime.datetime.strptime(x[1], '%Y-%m-%dT%H:%M:%S') < cur_date),booking_ways[ke])
+                        +
+
+            dict_changes.append( ( ke,
+                                   booking_ways[ke],
+
+
+                                  )
+                                )
+
 if __name__=="__main__":
     G = addNodes(transports)
     print ("============================")
+    G=update_tranp_graph(G, [{"transport_number": "20181112_lucky-moth-42",
+                                  "dep_station": "ORD",
+                                  "scheduled_arr_station": "JFK",
+                                  "actual_arr_station": "QWE"}])
+    print(G.edges(keys=True))
+    print("-0000000000000000")
+    print(G.edges(data=True))
+
    # print(G.edges('ORD', 'JFK', '20181112_lucky-moth-42',data=True))
-    d=deikstra(G,'ORD','MSK', datetime.datetime.strptime( '2018-01-01T14:00:00', '%Y-%m-%dT%H:%M:%S'))
-    print(d)
+   #  d=deikstra(G,'ORD','MSK', datetime.datetime.strptime( '2018-01-01T14:00:00', '%Y-%m-%dT%H:%M:%S'))
+   #  print(d)
 
 
 
