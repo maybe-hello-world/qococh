@@ -2,6 +2,8 @@ import APIrequests
 import datetime
 import json
 
+debug = True
+
 def get_data():
 	time = '2018-11-19T00:00:00'
 	old_r = []
@@ -13,9 +15,16 @@ def get_data():
 			datetime_object = datetime.datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
 			time = str(datetime.timedelta(seconds=int(step)) + datetime_object)
 			time = time[:10]+'T'+time[11:]
-		r = APIrequests.get_transprt_timestmp(time)
-		#print("got inf from {}".format(time))
-		r = json.loads(r.text)
+
+		if debug:
+			with open("routes_data/data{}".format(int(step // 3600))) as f:
+				r = json.load(f)
+			r = {"transports": r}
+		else:
+			r = APIrequests.get_transprt_timestmp(time)
+			r = json.loads(r.text)
+
+
 		tosent = []
 		for i in r['transports']:
 			if i not in old_r:
