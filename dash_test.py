@@ -7,7 +7,7 @@ import visdcc
 
 import data_getter
 import m_stats
-# import booking_processor # TODO
+
 from mercator import lat_to_mercator, long_to_mercator
 
 MAP_WIDTH = 2048

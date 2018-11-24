@@ -45,8 +45,8 @@ changed_data2 = """
 
 def count_avg_time(changes):
 	for shipment in changes:
-		g_ship_hours.append(shipment['cur_overall_time'])
-		g_incr_hours.append(shipment['cur_overall_time'] - shipment['prev_overall_time'])
+		g_ship_hours.append(float(changes[shipment]['cur_overall_time']))
+		g_incr_hours.append(float(changes[shipment]['cur_overall_time']) - float(changes[shipment]['prev_overall_time']))
 
 	return sum(g_ship_hours) / len(g_ship_hours), sum(g_incr_hours) / len(g_incr_hours)
 
