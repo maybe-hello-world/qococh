@@ -125,7 +125,7 @@ def deikstra (G, start_node ,stop_node, dep_time):
         min_ind = find_unvisited_min(dist,visited)
         visited.add(min_ind)
         neighbours = G.adj[min_ind].keys()
-        print('asdf {},{}'.format(min_ind, list(neighbours)))
+        print('n_list {}: {}'.format(min_ind, list(neighbours)))
         for adj_node in neighbours:
             min_e = 0
             min_time = INF_TIME
@@ -159,7 +159,8 @@ def update_tranp_graph(G, list_of_changes):
     transp_elem = G.get_edge_data()
 if __name__=="__main__":
     G = addNodes(transports)
-    print(G.edges.data('20181112_lucky-moth-42'))
+    print ("============================")
+    print(G.edges('ORD', 'JFK', '20181112_lucky-moth-42', keys=True, data=True))
     d=deikstra(G,'ORD','MSK', datetime.datetime.strptime( '2018-01-01T14:00:00', '%Y-%m-%dT%H:%M:%S'))
     print(d)
 
