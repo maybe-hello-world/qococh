@@ -55,8 +55,8 @@ app.layout = html.Div([
 			),
 				html.Div([html.Button('Add', id='addBtn')], style={'margin-top': 30})
 			], style={ 'margin-bottom': 50}),
-			html.Div(id='avgDelivery', style={'white-space': 'pre-wrap', 'text-align':'center', 'font-size': '26pt', 'margin-bottom': 40}),
-			html.Div(id='changeDelta', style={'white-space': 'pre-wrap', 'text-align':'center', 'font-size': '26pt'}),
+			html.Div(id='avgDelivery', style={'white-space': 'pre-wrap', 'text-align':'center', 'font-size': '30pt', 'margin-bottom': 40, 'margin-left':30}),
+			html.Div(id='changeDelta', style={'white-space': 'pre-wrap', 'text-align':'center', 'font-size': '30pt', 'margin-left':30}),
 			html.Div(id='nodes', style={'float': 'left','margin-top': '50'}),
 			dte.DataTable(
 				rows=[{'point': '1'}],
