@@ -111,6 +111,7 @@ def get_package_graph(booking, G):
     return new_G
 
 
+
 def update_graph(way, G, booking):
     #print(G.edges())
     new_G = G.copy()
@@ -124,6 +125,48 @@ def update_graph(way, G, booking):
         new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_weight"] -= booking["total_weight"]
     return new_G
 
+def update_graph_plus(way, G, booking):
+    #print(G.edges())
+    new_G = G.copy()
+    l = list(new_G.edges.data())
+    dic = {}
+    for i in l:
+        dic[i[2]["data"]["transport_number"]] = (i[0], i[1])
+    for w in way:
+        print("vol of way {}".format(new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_volume"]))
+        print("wei of way {}".format(new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_weight"]))
+        print("book vol {}".format(booking["total_volume"]))
+        print("book wei {}".format(booking["total_weight"]))
+        new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_volume"] += booking["total_volume"]
+        new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_weight"] += booking["total_weight"]
+        print("vol of way {}".format(new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_volume"]))
+        print("wei of way {}".format(new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_weight"]))
+    return new_G
+
+def canceled_bookings(bookings_list, G, bookings):
+    for i in bookings_list:
+        # i - booking id
+        # bookings_list[i][0] - old ways way[0] - name way w[1] - time way
+        # bookings_list[i][1] - new ways
+        booking_v = list(filter(lambda x: x["booking_id"] == i,bookings))
+        if booking_v:
+            booking_v = booking_v[0]
+        G = update_graph_plus(bookings_list[i][0], G, booking_v)
+        G = update_graph_minus(bookings_list[i][1], G, booking_v)
+    return G
+
+def update_graph_minus(way, G, booking):
+    #print(G.edges())
+    new_G = G.copy()
+    l = list(new_G.edges.data())
+    dic = {}
+    for i in l:
+        dic[i[2]["data"]["transport_number"]] = (i[0], i[1])
+    for w in way:
+        # print(new_G[dic[w[0]][0]][dic[w[0]][1]])
+        new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_volume"] -= booking["total_volume"]
+        new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_weight"] -= booking["total_weight"]
+    return new_G
 
 
 if __name__ == "__main__":
@@ -138,12 +181,13 @@ if __name__ == "__main__":
     for booking in bookings:
         input("Horay, next booking")
         Gst = get_package_graph(booking, G)
-        print(Gst.edges())
+        #print(Gst.edges())
         way = deikstra(Gst, booking["origin_station"], booking["destination_station"],
                        datetime.datetime.strptime(booking['booking_date'], '%Y%m%d'))
-        print(Gst.edges())
+        #print(Gst.edges())
         BOOKINGS_WAYS[booking["booking_id"]] = way
         G = update_graph(way, G, booking)
+        print(BOOKINGS_WAYS)
 
 
 
