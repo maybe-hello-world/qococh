@@ -131,13 +131,14 @@ def deikstra (G, start_node ,stop_node, dep_time):
             min_time = INF_TIME
             all_edges = G.get_edge_data(min_ind, adj_node)
             for i in all_edges:
-                if datetime.datetime.strptime(all_edges[i]['data']["estimated_arr_datetime"],'%Y-%m-%dT%H:%M:%S') < min_time:
+                if (datetime.datetime.strptime(all_edges[i]['data']["estimated_arr_datetime"],'%Y-%m-%dT%H:%M:%S') < min_time) \
+                        and (datetime.datetime.strptime(G.get_edge_data(min_ind, adj_node)[i]['data']["estimated_dep_datetime"], '%Y-%m-%dT%H:%M:%S') >= dist[min_ind]):
                     min_time = datetime.datetime.strptime(all_edges[i]['data']["estimated_arr_datetime"],'%Y-%m-%dT%H:%M:%S')
                     min_e = i
             adj_edge = (min_ind, adj_node)
             edj_data = G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']
             dist_delta = datetime.datetime.strptime(edj_data["estimated_arr_datetime"], '%Y-%m-%dT%H:%M:%S')
-            if (dist[adj_edge[1]] > dist_delta) and (datetime.datetime.strptime(edj_data["estimated_dep_datetime"], '%Y-%m-%dT%H:%M:%S') >= dist[min_ind]):
+            if (dist[adj_edge[1]] > dist_delta) :
                 dist[adj_edge[1]] = dist_delta
                 if min_ind in min_paths:
                     min_paths[adj_edge[1]] = min_paths[min_ind] + [(G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["transport_number"], G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["estimated_arr_datetime"])]
