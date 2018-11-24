@@ -77,7 +77,7 @@ app.layout = html.Div([
 				physics={
 					'enabled': False
 				})
-	)], style={'width': MAP_WIDTH, 'height' : MAP_HEIGHT,  'float': 'right', 'border-style':'solid' ,'border-width': "0.2px"})]),
+	)], style={'width': '80%',  'float': 'right', 'border-style':'solid' ,'border-width': "0.2px"})]),
 	html.Div([
 	dte.DataTable(
 		rows=[{'undevirable' : 'shipment 1'}, {'undevirable' : 'shipment 2'} ],
