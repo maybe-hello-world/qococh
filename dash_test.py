@@ -1,7 +1,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, Event, State
 import dash_table_experiments as dte
 import visdcc
 
@@ -39,23 +39,16 @@ undeliverable = {}
 app.layout = html.Div([
 	html.Div([
 		html.Div([
-			dcc.Slider(
-				id='slider-updatemode',
-				marks={i: '{}'.format(i) for i in range(11)},
-				max=10,
-				value=1,
-				step=1,
-				updatemode='mouseup'
-			),
 			html.Div([
 			dcc.RadioItems(
+				id='radioBtn',
 				options=[
-					{'label': '1h', 'value': 0},
-					{'label': '6h', 'value': 1},
-					{'label' : '12h', 'value': 2},
-					{'label' : '1 day', 'value': 3}
+					{'label': '1h', 'value': 1},
+					{'label': '6h', 'value': 6},
+					{'label' : '12h', 'value': 12},
+					{'label' : '1 day', 'value': 24}
 				],
-				value=0
+				value=1
 			),
 				html.Div([html.Button('Add', id='addBtn')],style={'margin-top': 30})
 			],style={'margin-top': 50, 'margin-bottom': 50}),
@@ -96,8 +89,7 @@ app.layout = html.Div([
 		filterable=True,
 		sortable=True,
 		id='stations'
-	),
-	dcc.Interval(id='my-interval', interval=1000*1000)])
+	)])
 ])
 
 
@@ -124,7 +116,7 @@ def myfun(x):
 	return s
 
 
-@app.callback(Output('net', 'data'), [Input('my-interval', 'n_intervals')])
+@app.callback(Output('net', 'data'), [],state=[State('radioBtn','value')],events=[Event('addBtn', 'click')])
 def update_metrics(n):
 	# Get changes
 	print("N is now: {}".format(n))
