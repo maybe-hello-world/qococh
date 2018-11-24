@@ -55,7 +55,7 @@ app.layout = html.Div([
 			),
 				html.Div([html.Button('Add', id='addBtn')],style={'margin-top': 30})
 			],style={ 'margin-bottom': 50}),
-			html.Div(id='statisticsDiv'),
+			html.Div(id='statisticsDiv', style={'white-space': 'pre-wrap'}),
 			html.Div(id='nodes'),
 			dte.DataTable(
 				rows=[{'point': '1'}],
@@ -101,6 +101,8 @@ app.layout = html.Div([
 @app.callback(
 	Output('nodes', 'children'),
 	[Input('net', 'selection')])
+
+
 def myfun(x):
 	s = 'Selected node: '
 	if x is not None and len(x['nodes']):
@@ -163,8 +165,7 @@ def update_metrics(n):
 
 @app.callback(Output('statisticsDiv', 'children'), [Input('net', 'data')])
 def statistics_return(x):
-	return 'Change delay: ' + str(g_avg_h) +'\\n' \
-		   'Something: '+ str(g_avg_i)
+	return 'Change delay: ' + str(g_avg_h) + '\nSomething: '+ str(g_avg_i)
 
 
 if __name__ == '__main__':
