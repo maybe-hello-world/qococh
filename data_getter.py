@@ -42,12 +42,13 @@ def get_initial_state():
 
 	print("stations got")
 
-	if debug:
-		with open('chages0.txt', 'r') as f:
-			g_routes = json.load(f)
-	else:
-		data_gen = get_data()
-		g_routes = data_gen.send(None)
+	data_gen = get_data()
+	g_routes = data_gen.send(None)
+	# if debug:
+	# 	with open('chages0.txt', 'r') as f:
+	# 		g_routes = json.load(f)
+
+
 	return g_routes
 
 

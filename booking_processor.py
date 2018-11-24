@@ -1,15 +1,16 @@
 import networkx as nx
 import datetime
-import APIrequests
-import json
+
 
 INF_TIME = datetime.datetime.strptime('3018-01-01T00:00:00', '%Y-%m-%dT%H:%M:%S')
+
 
 def addNodes(transports):
     G = nx.MultiDiGraph()
     for item in transports:
         G.add_edge(item["dep_station"],item["actual_arr_station"], data=item, key=item["transport_number"])
     return G
+
 
 def find_unvisited_min (dist, visited):
     min_ind = 0
@@ -20,6 +21,7 @@ def find_unvisited_min (dist, visited):
                 min_val = dist[i]
                 min_ind = i
     return min_ind
+
 
 def deikstra (G, start_node, stop_node, dep_time):
     dist = dict()
@@ -76,7 +78,6 @@ def update_tranp_graph(G, list_of_changes):
             G.remove_edge(act_dep,sch_arr,transp_key)
         G.add_edge(act_dep, act_arr, data=item, key=transp_key)
     return (G,bad_transports)
-
 
 
 def update_bookings (booking_ways, G, bad_transports, cur_date, bookings):

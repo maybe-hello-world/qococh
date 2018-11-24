@@ -4,7 +4,7 @@ import itertools
 g_ship_hours = []
 g_incr_hours = []
 
-debug = True
+debug = False
 
 
 changed_data2 = """
