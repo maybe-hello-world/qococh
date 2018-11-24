@@ -37,16 +37,36 @@ undeliverable = {}
 app.layout = html.Div([
 	html.Div([
 		html.Div([
+			dcc.Slider(
+				id='slider-updatemode',
+				marks={i: '{}'.format(i) for i in range(11)},
+				max=10,
+				value=1,
+				step=1,
+				updatemode='mouseup'
+			),
+			html.Div([
+			dcc.RadioItems(
+				options=[
+					{'label': '1h', 'value': 0},
+					{'label': '6h', 'value': 1},
+					{'label' : '12h', 'value': 2},
+					{'label' : '1 day', 'value': 3}
+				],
+				value=0
+			),
+				html.Div([html.Button('Add', id='addBtn')],style={'margin-top': 30})
+			],style={'margin-top': 50, 'margin-bottom': 50}),
 			html.Div(id='nodes'),
 			dte.DataTable(
-				rows=[{'pont':'1'}],
+				rows=[{'point': '1'}],
 				row_selectable=False,
 				editable=False,
 				filterable=True,
 				sortable=True,
 				id='edges-data'
 			)
-		], style={'width': '19%', 'display': 'inline-block'}),
+		], style={'width': '19%', 'float': 'left'}),
 		html.Div([
 		visdcc.Network(
 			id='net',
@@ -57,14 +77,16 @@ app.layout = html.Div([
 				physics={
 					'enabled': False
 				})
-	)], style={'width': '80%', 'float': 'right', 'display': 'inline-block'})], style={'border': '4px black'}),
+	)], style={'width': '80%', 'float': 'right', 'border': 'solid', 'border-width': '0.5px'})]),
+	html.Div([
 	dte.DataTable(
 		rows=bookings,
-		row_selectable=True,
+		row_selectable=False,
 		filterable=True,
 		sortable=True,
 		id='undelirevable-data'
 	),
+
 	dte.DataTable(
 		rows=bookings,
 		row_selectable=False,
@@ -74,8 +96,9 @@ app.layout = html.Div([
 		id='stations'
 	)
 	,
-	dcc.Interval(id='my-interval', interval=1000*1000)
+	dcc.Interval(id='my-interval', interval=1000*1000)])
 ])
+
 
 
 # selection for nodes
