@@ -136,6 +136,8 @@ app.layout = html.Div([
                 })
     )], style={'width': '80%',  'float': 'right', 'border-style':'solid' ,'border-width': "0.2px"})]),
     html.Div([
+    html.H4(' ',style={'clear':'both'}),
+    html.Article('Undeliverable',style={'margin-top':50, 'font-size':'16pt', 'font-weight':'bold'}),
     dte.DataTable(
         rows=[{'ID': ' ', 'old_route': ' '}],
         row_selectable=False,
@@ -144,7 +146,7 @@ app.layout = html.Div([
         sortable=True,
         id='undeliverable-data'
     ),
-
+    html.Article('Delivered',style={'margin-top':50, 'font-size':'16pt', 'font-weight':'bold'}),
     dte.DataTable(
         rows=[{'ID': ' ', 'old_route': ' ', 'new_route': ' '}],
         row_selectable=False,
