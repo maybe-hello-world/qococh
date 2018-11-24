@@ -2,7 +2,7 @@ import APIrequests
 import datetime
 import json
 
-debug = False
+debug = True
 
 def get_data():
     time = '2018-11-19T00:00:00'
@@ -10,7 +10,9 @@ def get_data():
     changes_to_show = {}
     step = 0
     itera = 0
+    time_tracker = 0
     while True:
+        cur_tracker = 0
         if step is not None and step != 0:
             datetime_object = datetime.datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
             time = str(datetime.timedelta(seconds=int(step)) + datetime_object)
@@ -18,9 +20,15 @@ def get_data():
             print(time)
 
         if debug:
-            with open("routes_data/data{}".format(int(step // 3600))) as f:
-                r = json.load(f)
-            r = {"transports": r}
+            s = []
+            while cur_tracker < step // 3600:
+                with open("routes_data/data{}".format(time_tracker)) as f:
+                    print('Reading file #{}'.format(time_tracker))
+                    r = json.load(f)
+                time_tracker += 1
+                cur_tracker += 1
+                s.extend(r)
+            r = {"transports": s}
         else:
             r = APIrequests.get_transprt_timestmp(time)
             r = json.loads(r.text)
