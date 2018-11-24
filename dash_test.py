@@ -2,7 +2,10 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
+import dash_table_experiments as dte
 import visdcc
+import pandas as pd
+
 import data_getter
 from mercator import lat_to_mercator, long_to_mercator
 
@@ -10,6 +13,8 @@ MAP_WIDTH = 1024
 MAP_HEIGHT = 1000
 
 TIME = 5
+PAGE_SIZE = 100
+
 
 external_stylesheets = ['https://cdnjs.cloudflare.com/ajax/libs/vis/4.20.1/vis.min.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -25,6 +30,8 @@ stations = [{
 	'x': long_to_mercator(v[1]['longitude'], MAP_WIDTH) * 15}
 	for k, v in stations.items()]
 
+bookings = data_getter.g_bookings
+
 
 app.layout = html.Div([
 	visdcc.Network(
@@ -37,6 +44,15 @@ app.layout = html.Div([
 				'enabled': False
 			})
 	),
+	dte.DataTable(
+		rows=bookings,  # initialise the rows
+		row_selectable=True,
+		filterable=True,
+		sortable=True,
+		selected_row_indices=[],
+		id='datatable'
+	)
+	,
 	dcc.Interval(id='my-interval', interval=1000*1000)
 ])
 
