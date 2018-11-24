@@ -6,9 +6,11 @@ import dash_table_experiments as dte
 import visdcc
 
 import data_getter
+import m_stats
+# import booking_processor # TODO
 from mercator import lat_to_mercator, long_to_mercator
 
-MAP_WIDTH = 1024
+MAP_WIDTH = 2048
 MAP_HEIGHT = 1000
 
 TIME = 5
@@ -19,7 +21,8 @@ external_stylesheets = ['https://cdnjs.cloudflare.com/ajax/libs/vis/4.20.1/vis.m
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 edges = data_getter.get_initial_state()
-edges = [{'id': i['transport_number'], 'from': i['dep_station'], 'to': i['actual_arr_station']} for i in edges]
+# edges = [{'id': i['transport_number'], 'from': i['dep_station'], 'to': i['actual_arr_station']} for i in edges]
+edges = []
 
 stations = {x: (data_getter.g_stations[x]['name'], data_getter.g_stations[x]['location'])  for x in data_getter.g_stations.keys()}
 stations = [{
@@ -29,24 +32,43 @@ stations = [{
 	'x': long_to_mercator(v[1]['longitude'], MAP_WIDTH) * 15}
 	for k, v in stations.items()]
 
-bookings = data_getter.g_bookings
+bookings = data_getter.g_routes
 
 undeliverable = {}
-#print(bookings)
 
 app.layout = html.Div([
 	html.Div([
 		html.Div([
+			dcc.Slider(
+				id='slider-updatemode',
+				marks={i: '{}'.format(i) for i in range(11)},
+				max=10,
+				value=1,
+				step=1,
+				updatemode='mouseup'
+			),
+			html.Div([
+			dcc.RadioItems(
+				options=[
+					{'label': '1h', 'value': 0},
+					{'label': '6h', 'value': 1},
+					{'label' : '12h', 'value': 2},
+					{'label' : '1 day', 'value': 3}
+				],
+				value=0
+			),
+				html.Div([html.Button('Add', id='addBtn')],style={'margin-top': 30})
+			],style={'margin-top': 50, 'margin-bottom': 50}),
 			html.Div(id='nodes'),
 			dte.DataTable(
-				rows=[{'pont':'1'}],
+				rows=[{'point': '1'}],
 				row_selectable=False,
 				editable=False,
 				filterable=True,
 				sortable=True,
 				id='edges-data'
 			)
-		], style={'width': '19%', 'display': 'inline-block'}),
+		], style={'width': '19%', 'float': 'left'}),
 		html.Div([
 		visdcc.Network(
 			id='net',
@@ -57,14 +79,16 @@ app.layout = html.Div([
 				physics={
 					'enabled': False
 				})
-	)], style={'width': '80%', 'float': 'right', 'display': 'inline-block'})], style={'border': '4px black'}),
+	)], style={'width': '80%', 'float': 'right', 'border': 'solid', 'border-width': '0.5px'})]),
+	html.Div([
 	dte.DataTable(
 		rows=bookings,
-		row_selectable=True,
+		row_selectable=False,
 		filterable=True,
 		sortable=True,
 		id='undelirevable-data'
 	),
+
 	dte.DataTable(
 		rows=bookings,
 		row_selectable=False,
@@ -72,9 +96,8 @@ app.layout = html.Div([
 		filterable=True,
 		sortable=True,
 		id='stations'
-	)
-	,
-	dcc.Interval(id='my-interval', interval=1000*1000)
+	),
+	dcc.Interval(id='my-interval', interval=1000*1000)])
 ])
 
 
@@ -89,33 +112,54 @@ def myfun(x):
 	return s
 
 
-#selections for edges
+# selections for edges
 @app.callback(
 	Output('edges-data', 'rows'),
 	[Input('net', 'selection')])
 def myfun(x):
-	s=[]
+	s = []
 	if x is not None and len(x['edges']):
 		tmp = [{'point' :i} for i in x['edges']]
 		s = tmp
 	return s
 
 
-@app.callback(Output('net', 'options'), [Input('my-interval', 'n_intervals')])
+@app.callback(Output('net', 'data'), [Input('my-interval', 'n_intervals')])
 def update_metrics(n):
 	# Get changes
 	print("N is now: {}".format(n))
 
-	if n is None: n = 0
+	data = {'nodes': stations, 'edges': []}
 
-	edges = [
-		[{'id': 'someidhere', 'from': 'AGP', 'to': 'ALC'}, {'id': 'someidhhere', 'from': 'ALC', 'to': 'ALF'}],
-		[]
-	]
+	n = n if n is not None else 0
 
-	data = {'nodes': stations, 'edges': edges[n % 2]}
+	# new_data = data_getter.get_next_step(n)
+	new_data = 1
 
-	return dict(height='1000px', width='100%')
+	if new_data is not None and new_data:
+		# changes = booking_processor.process_changes(new_data)
+		changes = None
+
+		old_edges, new_edges = m_stats.recalculate_stats(changes)
+		old_edges = [{
+			'id': i['id'],
+			'from': i['dep_station'],
+			'to': i['actual_arr_station'],
+			'arrows': 'to',
+			'dashes': True
+		} for i in old_edges]
+		new_edges = [{
+			'id': i['id'],
+			'from': i['dep_station'],
+			'to': i['actual_arr_station'],
+			'arrows': 'to'
+		} for i in new_edges]
+
+		old_edges.extend(new_edges)
+
+		data['edges'] = old_edges
+
+	return data
 
 
 if __name__ == '__main__':
