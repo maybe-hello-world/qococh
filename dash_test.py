@@ -4,10 +4,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 import visdcc
 import data_getter
-
 from mercator import lat_to_mercator, long_to_mercator
-
-import math
 
 MAP_WIDTH = 1024
 MAP_HEIGHT = 1000
@@ -19,8 +16,6 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 edges = data_getter.get_initial_state()
 edges = [{'id': i['transport_number'], 'from': i['dep_station'], 'to': i['actual_arr_station']} for i in edges]
-
-# edges = edges[:100]
 
 stations = {x: (data_getter.g_stations[x]['name'], data_getter.g_stations[x]['location'])  for x in data_getter.g_stations.keys()}
 stations = [{
