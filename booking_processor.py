@@ -104,7 +104,7 @@ def addNodes(transports):
     return G
 
 def find_unvisited_min (dist, visited):
-    min_ind =0
+    min_ind = 0
     min_val = INF_TIME
     for i in dist:
         if i not in visited:
@@ -123,7 +123,9 @@ def deikstra (G, start_node ,stop_node, dep_time):
     visited = set()
     while len(visited) < len(G.nodes) -1:
         min_ind = find_unvisited_min(dist,visited)
+        if min_ind==0: break
         visited.add(min_ind)
+
         neighbours = G.adj[min_ind].keys()
         print('n_list {}: {}'.format(min_ind, list(neighbours)))
         for adj_node in neighbours:
@@ -136,15 +138,21 @@ def deikstra (G, start_node ,stop_node, dep_time):
                     min_time = datetime.datetime.strptime(all_edges[i]['data']["estimated_arr_datetime"],'%Y-%m-%dT%H:%M:%S')
                     min_e = i
             adj_edge = (min_ind, adj_node)
-            edj_data = G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']
-            dist_delta = datetime.datetime.strptime(edj_data["estimated_arr_datetime"], '%Y-%m-%dT%H:%M:%S')
-            if (dist[adj_edge[1]] > dist_delta) :
-                dist[adj_edge[1]] = dist_delta
-                if min_ind in min_paths:
-                    min_paths[adj_edge[1]] = min_paths[min_ind] + [(G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["transport_number"], G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["estimated_arr_datetime"])]
-                else:
-                    min_paths[adj_edge[1]] = [(G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["transport_number"], G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["estimated_arr_datetime"])]
-    return min_paths[stop_node]
+            if min_e != 0:
+                edj_data = G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']
+
+                dist_delta = datetime.datetime.strptime(edj_data["estimated_arr_datetime"], '%Y-%m-%dT%H:%M:%S')
+
+                if (dist[adj_edge[1]] > dist_delta) :
+                    dist[adj_edge[1]] = dist_delta
+                    if min_ind in min_paths:
+                        min_paths[adj_edge[1]] = min_paths[min_ind] + [(G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["transport_number"], G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["estimated_arr_datetime"])]
+                    else:
+                        min_paths[adj_edge[1]] = [(G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["transport_number"], G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["estimated_arr_datetime"])]
+    if stop_node in min_paths:
+        return min_paths[stop_node]
+    else:
+        return []
 
 
 def update_tranp_graph(G, list_of_changes):
@@ -160,7 +168,7 @@ def update_tranp_graph(G, list_of_changes):
 if __name__=="__main__":
     G = addNodes(transports)
     print ("============================")
-    print(G.edges('ORD', 'JFK', '20181112_lucky-moth-42', keys=True, data=True))
+   # print(G.edges('ORD', 'JFK', '20181112_lucky-moth-42',data=True))
     d=deikstra(G,'ORD','MSK', datetime.datetime.strptime( '2018-01-01T14:00:00', '%Y-%m-%dT%H:%M:%S'))
     print(d)
 
