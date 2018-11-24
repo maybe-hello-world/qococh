@@ -110,16 +110,22 @@ def get_package_graph(booking, G):
                 new_G.remove_edge(i[2]["data"]["dep_station"], i[2]["data"]["scheduled_arr_station"], key=i[2]["data"]["transport_number"])
     return new_G
 
-def update_booking_ways(way):
-    global BOOKINGS_WAYS
-    pass
 
-def update_graph(way,G):
+def update_graph(way, G, booking):
+    #print(G.edges())
     new_G = G.copy()
+    l = list(new_G.edges.data())
+    dic = {}
+    for i in l:
+        dic[i[2]["data"]["transport_number"]] = (i[0], i[1])
+    for w in way:
+        print(new_G[dic[w[0]][0]][dic[w[0]][1]])
+        new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_volume"] -= booking["total_volume"]
+        new_G[dic[w[0]][0]][dic[w[0]][1]][w[0]]["data"]["capacity_weight"] -= booking["total_weight"]
     return new_G
 
 
-[{}]
+
 if __name__ == "__main__":
     # print(G.edges())
     tmstmps = APIrequests.get_transprt_timestmp()
@@ -130,11 +136,14 @@ if __name__ == "__main__":
     BOOKINGS_WAYS = {i["booking_id"]:[] for i in bookings}
 
     for booking in bookings:
+        input("Horay, next booking")
         Gst = get_package_graph(booking, G)
+        print(Gst.edges())
         way = deikstra(Gst, booking["origin_station"], booking["destination_station"],
                        datetime.datetime.strptime(booking['booking_date'], '%Y%m%d'))
-        update_booking_ways(way)
-        G = update_graph(way, Gst)
+        print(Gst.edges())
+        BOOKINGS_WAYS[booking["booking_id"]] = way
+        G = update_graph(way, G, booking)
 
 
 
