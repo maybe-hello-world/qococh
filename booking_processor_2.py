@@ -97,10 +97,6 @@ def addNodes(transports):
     return G
 
 
-
-
-
-# print("as".format(G))
 def get_package_graph(booking, G):
     new_G = G.copy()
     for i in G.edges.data():
@@ -181,7 +177,7 @@ if __name__ == "__main__":
 
     for booking in bookings:
         input("Horay, next booking")
-        Gst = get_package_graph(booking, G)
+        Gst = get_package_graph(booking = booking, G = G)
         #print(Gst.edges())
         way = deikstra(Gst, booking["origin_station"], booking["destination_station"],
                        datetime.datetime.strptime(booking['booking_date'], '%Y%m%d'))
