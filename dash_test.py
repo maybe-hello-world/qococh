@@ -13,8 +13,8 @@ from mercator import lat_to_mercator, long_to_mercator
 debug = True
 
 
-MAP_WIDTH = 2048
-MAP_HEIGHT = 1000
+MAP_WIDTH = 1433
+MAP_HEIGHT = 930
 
 TIME = 5
 PAGE_SIZE = 100
@@ -56,10 +56,11 @@ app.layout = html.Div([
 				],
 				value=1
 			),
-				html.Div([html.Button('Add', id='addBtn')],style={'margin-top': 30})
-			],style={ 'margin-bottom': 50}),
-			html.Div(id='statisticsDiv', style={'white-space': 'pre-wrap'}),
-			html.Div(id='nodes'),
+				html.Div([html.Button('Add', id='addBtn')], style={'margin-top': 30})
+			], style={ 'margin-bottom': 50}),
+			html.Div(id='avgDelivery', style={ 'white-space': 'pre-wrap'}),
+			html.Div(id='changeDelta', style={ 'white-space': 'pre-wrap'}),
+			html.Div(id='nodes', style={'float': 'left','margin-top': '50'}),
 			dte.DataTable(
 				rows=[{'point': '1'}],
 				row_selectable=False,
@@ -79,11 +80,14 @@ app.layout = html.Div([
 				physics={
 					'enabled': False
 				})
-	)], style={'width': '80%', 'float': 'right', 'border': 'solid', 'border-width': "0.2px"})]),
+	)], style={'background-image': 'url(https://upload.wikimedia.org/wikipedia/commons/c/c8/Mercator_Blank_Map_World.png)',
+			   'background-repeat': 'no-repeat', 'background-size':'auto',
+			   'width': MAP_WIDTH, 'height' :MAP_HEIGHT ,  'float': 'right', 'border': 'solid', 'border-width': "0.1px"})]),
 	html.Div([
 	dte.DataTable(
-		rows=bookings,
+		rows=[{'undevirable' : 'shipment 1'}, {'undevirable' : 'shipment 2'} ],
 		row_selectable=False,
+		editable=False,
 		filterable=True,
 		sortable=True,
 		id='undelirevable-data'
@@ -97,7 +101,7 @@ app.layout = html.Div([
 		sortable=True,
 		id='stations'
 	)])
-])
+], style={})
 
 
 # selection for nodes
@@ -170,10 +174,13 @@ def update_metrics(n):
 	return data
 
 
-@app.callback(Output('statisticsDiv', 'children'), [Input('net', 'data')])
+@app.callback(Output('avgDelivery', 'children'), [Input('net', 'data')])
 def statistics_return(x):
-	return 'Change delay: ' + str(g_avg_h) + '\nSomething: '+ str(g_avg_i)
+	return 'AVG delivery: ' + str(g_avg_h)
 
+@app.callback(Output('changeDelta', 'children'), [Input('net', 'data')])
+def statistics_return(x):
+	return 'Something: '+ str(g_avg_i)
 
 if __name__ == '__main__':
 	app.run_server(debug=True, use_reloader=False)
