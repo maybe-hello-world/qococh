@@ -100,7 +100,7 @@ transports =[
 def addNodes(transports):
     G = nx.MultiDiGraph()
     for item in transports:
-        G.add_edge(item["dep_station"],item["actual_arr_station"], data=item)
+        G.add_edge(item["dep_station"],item["actual_arr_station"], data=item, key=item["transport_number"])
     return G
 
 def find_unvisited_min (dist, visited):
@@ -146,12 +146,22 @@ def deikstra (G, start_node ,stop_node, dep_time):
                     min_paths[adj_edge[1]] = [(G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["transport_number"], G.get_edge_data(adj_edge[0], adj_edge[1])[min_e]['data']["estimated_arr_datetime"])]
     return min_paths[stop_node]
 
-# def transportation_canceled():
 
-G = addNodes(transports)
-#print(G.edges())
-d=deikstra(G,'ORD','MSK', datetime.datetime.strptime( '2018-01-01T14:00:00', '%Y-%m-%dT%H:%M:%S'))
-print(d)
+def update_tranp_graph(G, list_of_changes):
+    cur_edges = {}
+    for item in list_of_changes:
+        transp_key = item["transport_number"]
+        G.edges[transp_key]
+
+
+
+        G.remove_edge( )
+    transp_elem = G.get_edge_data()
+if __name__=="__main__":
+    G = addNodes(transports)
+    print(G.edges.data('20181112_lucky-moth-42'))
+    d=deikstra(G,'ORD','MSK', datetime.datetime.strptime( '2018-01-01T14:00:00', '%Y-%m-%dT%H:%M:%S'))
+    print(d)
 
 
 
