@@ -6,7 +6,7 @@ def get_data():
     time = '2018-11-19T00:00:00'
     old_r = []
     changes_to_show = {}
-    step = yield
+    step = 0
     itera = 0
     while True:
         if step is not None and step != 0:
