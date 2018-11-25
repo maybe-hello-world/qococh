@@ -209,19 +209,21 @@ def update_metrics(n):
         g_u_s = [{
             "ID": i,
             "old_route": str(
-                ", ".join(map(lambda x: "{} -> {}".format(x[2], x[3]), list_to_change[i]['old']))
+                ", ".join(map(lambda x: "{} -> {} ({})".format(x[2], x[3], x[0]), list_to_change[i]['old']))
             )
         } for i in list_to_change if not list_to_change[i]['new']]
 
         g_d_s = [{
             "ID": i,
             "old_route": str(
-                ", ".join(map(lambda x: "{} -> {}".format(x[2], x[3]), list_to_change[i]['old']))
+                ", ".join(map(lambda x: "{} -> {} ({})".format(x[2], x[3], x[0]), list_to_change[i]['old']))
             ),
             "new_route": str(
-                ", ".join(map(lambda x: "{} -> {}".format(x[2], x[3]), list_to_change[i]['new']))
+                ", ".join(map(lambda x: "{} -> {} ({})".format(x[2], x[3], x[0]), list_to_change[i]['new']))
             )
         } for i in list_to_change if list_to_change[i]['new']]
+
+        g_d_s = [i for i in g_d_s if i['old_route'] != i['new_route']]
 
         old_edges, new_edges, stats = m_stats.recalculate_stats(list_to_change)
         g_avg_h, g_avg_i = stats['avg_h'], stats['avg_i']
