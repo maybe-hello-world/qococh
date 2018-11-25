@@ -68,18 +68,18 @@ def init():
             if way:
                 G = booking_processor.update_graph(way, G, booking)
 
-    try:
-        print("begin of dumping")
-        nx.write_gpickle(G, "G")
-        print("G dumped")
+        try:
+            print("begin of dumping")
+            nx.write_gpickle(G, "G")
+            print("G dumped")
 
 
-        with open("BOOKINGS_WAYS", 'wb') as f:
-            pickle.dump(BOOKINGS_WAYS, f)
-        print("BOOKINGS_WAYS saved")
-    except Exception as e:
-        print("Couldn't save")
-        print(str(e))
+            with open("BOOKINGS_WAYS", 'wb') as f:
+                pickle.dump(BOOKINGS_WAYS, f)
+            print("BOOKINGS_WAYS saved")
+        except Exception as e:
+            print("Couldn't save")
+            print(str(e))
 
     print("Initial state calculated")
 
